@@ -15,8 +15,9 @@ const configureAWS = () => {
 
     // Optionally, you can initialize other AWS services here if needed
     const s3 = new AWS.S3();
+    const sqs  = new AWS.SQS();
     
-    resolve(s3); // Resolve with the configured S3 object
+    resolve({s3,sqs}); // Resolve with the configured S3 object
   });
 };
 
