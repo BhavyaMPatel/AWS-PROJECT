@@ -6,7 +6,7 @@ const upload = multer();
 
 const configureAWS = require('./AWS_Configuration/aws.js');
 
-const initializeS3 = async () => {
+const initialize = async () => {
   try {
     const {s3,sqs} = await configureAWS();
     
@@ -19,20 +19,35 @@ const initializeS3 = async () => {
 
           const fileBuffer = req.file.buffer;
           const userName = req.body.userName;
-          const params = {
+          const timeStamp = new Date().getTime();
+
+          //@S3 Upload Section 
+          const S3params = {
             Bucket: `${process.env.BUCKET_NAME}/${userName}/${timeStamp}`,
             Key: req.file.originalname,
             Body: fileBuffer,
           };
-          const timeStamp = new Date().getTime();
-          // Upload the file to S3
-          await s3.putObject(params).promise();
+          await s3.putObject(S3params).promise();
+          // --------------------------------------------------------//
 
 
+          //@SQS Upload Section
           const path_name = `s3://${process.env.BUCKET_NAME}/${userName}/${timeStamp}`;
+          const SQSparams = {
+            DelaySeconds: 10,
+            MessageBody: path_name,
+            QueueUrl: process.env.SQL_QUEUE_URL,
+          };
 
-          console.log(path_name);
-          
+          sqs.sendMessage(SQSparams, function (err, data) {
+            if(err)
+              console.log("Error", err);
+            else
+              console.log("Success", data.MessageId);
+          });
+          //---------------------------------------------------------//
+
+
           res.status(200).json({ message: 'File uploaded successfully!' });
         } catch (error) {
 
@@ -53,4 +68,4 @@ const initializeS3 = async () => {
 }
 
 
-initializeS3()
+initialize()
