@@ -42,7 +42,7 @@ const initializeS3 = async () => {
     })
 
   }catch (err) {
-    console.error(err);
+    console.log("AWS INIT ERROR: " + err);
   }
 }
 
