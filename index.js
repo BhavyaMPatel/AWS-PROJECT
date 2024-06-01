@@ -1,7 +1,8 @@
 const express = require('express')
-const app = express()
-const port = process.env.PORT || 3000;
 const multer = require('multer')
+
+const app = express();
+const port = process.env.PORT || 3000;
 const upload = multer();
 
 const configureAWS = require('./AWS_Configuration/aws.js');
@@ -38,7 +39,6 @@ const initialize = async () => {
             MessageBody: path_name,
             QueueUrl: process.env.SQL_QUEUE_URL,
           };
-
           sqs.sendMessage(SQSparams, function (err, data) {
             if(err)
               console.log("Error", err);
@@ -46,14 +46,10 @@ const initialize = async () => {
               console.log("Success", data.MessageId);
           });
           //---------------------------------------------------------//
-
-
           res.status(200).json({ message: 'File uploaded successfully!' });
         } catch (error) {
-
           console.error('Error uploading file:', error);
           res.status(500).json({ error: 'Failed to upload file' });
-
         }
     });
     
@@ -66,6 +62,5 @@ const initialize = async () => {
     console.log("AWS INIT ERROR: " + err);
   }
 }
-
 
 initialize()
