@@ -33,10 +33,13 @@ const initialize = async () => {
 
 
           //@SQS Upload Section
-          const path_name = `s3://${process.env.BUCKET_NAME}/${userName}/${timeStamp}`;
+          const path_name = `s3://${process.env.BUCKET_NAME}/${userName}/${timeStamp}/${req.file.originalname}`;
           const SQSparams = {
             DelaySeconds: 10,
-            MessageBody: path_name,
+            MessageBody: JSON.stringify({'userName':userName, 
+            'timeStamp':timeStamp,
+            'pathName':path_name,
+            }),
             QueueUrl: process.env.SQL_QUEUE_URL,
           };
           sqs.sendMessage(SQSparams, function (err, data) {
@@ -46,6 +49,7 @@ const initialize = async () => {
               console.log("Success", data.MessageId);
           });
           //---------------------------------------------------------//
+
           res.status(200).json({ message: 'File uploaded successfully!' });
         } catch (error) {
           console.error('Error uploading file:', error);
