@@ -19,12 +19,12 @@ const initialize = async () => {
         try {
 
           const fileBuffer = req.file.buffer;
-          const userName = req.body.userName;
+          const userId = req.body.userId;
           const timeStamp = new Date().getTime();
 
           //@S3 Upload Section 
           const S3params = {
-            Bucket: `${process.env.BUCKET_NAME}/${userName}/${timeStamp}`,
+            Bucket: `${process.env.BUCKET_NAME}/${userId}/${timeStamp}`,
             Key: req.file.originalname,
             Body: fileBuffer,
           };
@@ -33,10 +33,10 @@ const initialize = async () => {
 
 
           //@SQS Upload Section
-          const path_name = `s3://${process.env.BUCKET_NAME}/${userName}/${timeStamp}/${req.file.originalname}`;
+          const path_name = `s3://${process.env.BUCKET_NAME}/${userId}/${timeStamp}/${req.file.originalname}`;
           const SQSparams = {
             DelaySeconds: 10,
-            MessageBody: JSON.stringify({'userName':userName, 
+            MessageBody: JSON.stringify({'userId':userId, 
             'timeStamp':timeStamp,
             'pathName':path_name,
             }),
