@@ -4,16 +4,44 @@
 #Use Worker In Different Environment/Server
 */
 
+/*
+@Author : BhavyaMPatel
+*/
+
 import { Consumer } from "sqs-consumer";
 import { SQSClient } from "@aws-sdk/client-sqs";
+import { StartTranscriptionJobCommand, Type } from "@aws-sdk/client-transcribe";
+import { transcribeClient } from "./AWS_Configuration_Worker/aws.js"; 
 
+console.log(process.env.SQS_QUEUE_URL)
 const app = Consumer.create({
-    queueUrl: process.env.SQS_QUEUE_URL,
+  queueUrl: process.env.SQS_QUEUE_URL,
     handleMessage: async (message) => {
         console.log(message.Body);
-        //Transcribe Service
-        
-        
+        const Object = JSON.parse(message.Body)
+        //Transcribe Service ----------------------------------------------------------------//
+        const JOB_NAME = `TranscriptionJob-${Object.userId}-${Object.timeStamp}`;
+        const params = {
+          TranscriptionJobName: JOB_NAME,
+          IdentifyMultipleLanguages : true,
+          MediaFormat: "mp3" || "mp4" || "wav" || "flac" || "ogg" || "amr" || "webm" || "m4a",
+          Media: {
+            MediaFileUri: Object.pathName, // Specify the input media file
+          },
+          OutputBucketName: process.env.OUTPUT_BUCKET_NAME,
+          OutputKey: `${Object.userId}/${Object.timeStamp}/`,
+          Subtitles: {
+            Formats : ["vtt","srt"],
+          }  
+        };
+
+        try {
+          const data = await transcribeClient.send(new StartTranscriptionJobCommand(params));
+          console.log("Transcription job started:", data.TranscriptionJob.TranscriptionJobName);
+        } catch (error) {
+          console.error("Error starting transcription job:", error);
+        }
+        //End of Service ----------------------------------------------------------------//
     },
     sqs: new SQSClient({
       region: process.env.REGION,
