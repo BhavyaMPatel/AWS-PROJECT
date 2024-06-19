@@ -29,6 +29,6 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./worker/Dockerfile
+          context: ./worker/
           push: true
           tags: worker:7
