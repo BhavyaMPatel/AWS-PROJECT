@@ -2,9 +2,15 @@ name: docker-build-push-ci
 
 on:
   push:
+    paths:
+      - '.worker/**'
+      - '.github/workflows/**'
     branches:
       - master
   pull_request:
+    paths:
+      - '.worker/**'
+      - '.github/workflows/**'
     branches:
       - master
 
@@ -25,10 +31,10 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
       - name: Generate timestamp
         id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y%m%d%H%M%S')"
+        run: echo "TIMESTAMP=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: ./worker/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/worker:${{ steps.timestamp.outputs.timestamp }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/worker:${{ env.TIMESTAMP }}
