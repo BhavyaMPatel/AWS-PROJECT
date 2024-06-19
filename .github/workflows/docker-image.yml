@@ -1,4 +1,4 @@
-name: ci
+name: docker-build-push-ci 
 
 on:
   push:
@@ -31,4 +31,4 @@ jobs:
         with:
           context: ./worker/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/worker:7
+          tags: ${{ secrets.DOCKER_USERNAME }}/worker:V+eval($PREV_VERSION+1)
