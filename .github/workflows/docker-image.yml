@@ -31,4 +31,4 @@ jobs:
         with:
           context: ./worker/Dockerfile
           push: true
-          tags: worker:$(PREV_VERSION)+1
+          tags: worker:7
