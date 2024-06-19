@@ -12,12 +12,12 @@ const initialize = async () => {
     const {s3,sqs} = await configureAWS();
     
     app.get('/', (req, res) => {
-      res.send('Hello World! Test')
+        res.send('Hello World! Test')
     })
     
     app.post('/upload', upload.single('file'), async (req, res) => {
         try {
-
+          console.log("hi");
           const fileBuffer = req.file.buffer;
           const userId = req.body.userId;
           const timeStamp = new Date().getTime();

@@ -1,19 +1,13 @@
 /*
 @Author : BhavyaMPatel
-@BhavyaMPatel
-#Use Worker In Different Environment/Server
-*/
-
-/*
-@Author : BhavyaMPatel
 */
 
 import { Consumer } from "sqs-consumer";
 import { SQSClient } from "@aws-sdk/client-sqs";
 import { StartTranscriptionJobCommand, Type } from "@aws-sdk/client-transcribe";
-import { transcribeClient } from "./AWS_Configuration_Worker/aws.js"; 
+import { transcribeClient } from "./aws.js"; 
+import 'dotenv/config'
 
-console.log(process.env.SQS_QUEUE_URL)
 const app = Consumer.create({
   queueUrl: process.env.SQS_QUEUE_URL,
     handleMessage: async (message) => {
@@ -26,13 +20,14 @@ const app = Consumer.create({
           IdentifyMultipleLanguages : true,
           MediaFormat: "mp3" || "mp4" || "wav" || "flac" || "ogg" || "amr" || "webm" || "m4a",
           Media: {
-            MediaFileUri: Object.pathName, // Specify the input media file
+            MediaFileUri: Object.pathName,
           },
-          OutputBucketName: process.env.OUTPUT_BUCKET_NAME,
+          OutputBucketName: "output-bkt-transcribe",
           OutputKey: `${Object.userId}/${Object.timeStamp}/`,
           Subtitles: {
             Formats : ["vtt","srt"],
-          }  
+            OutputStartIndex:1  
+          },
         };
 
         try {
@@ -61,4 +56,7 @@ app.on("processing_error", (err) => {
   console.error(err.message);
 });
 
-app.start();
+setTimeout(() =>{
+  console.log("STARTING ................");
+  app.start();
+},3000);
