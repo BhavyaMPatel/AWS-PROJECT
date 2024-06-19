@@ -10,6 +10,22 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - 
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+            images: |
+                  ${{ secrets.DOCKER_USERNAME }}/worker
+                # generate Docker tags based on the following events/attributes
+            tags: |
+                  type=schedule
+                  type=ref,event=branch
+                  type=ref,event=pr
+                  type=semver,pattern={{version}}
+                  type=semver,pattern={{major}}.{{minor}}
+                  type=semver,pattern={{major}}
+                  type=sha            
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -31,4 +47,4 @@ jobs:
         with:
           context: ./worker/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/worker:V+eval($PREV_VERSION+1)
+          tags: ${{ secrets.DOCKER_USERNAME }}/worker:${{ steps.meta.outputs.labels }}
