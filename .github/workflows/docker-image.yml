@@ -31,4 +31,4 @@ jobs:
         with:
           context: ./worker/
           push: true
-          tags: worker:7
+          tags: ${{ secrets.DOCKER_USERNAME }}/worker:7
